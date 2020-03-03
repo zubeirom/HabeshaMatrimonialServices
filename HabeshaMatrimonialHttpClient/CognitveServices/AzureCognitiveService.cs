@@ -12,11 +12,9 @@ namespace HabeshaMatrimonialHttpClient.CognitveServices
 {
     class AzureCognitiveService : IFaceVerification
     {
-        readonly Environment env;
 
-        public AzureCognitiveService(Environment env)
+        public AzureCognitiveService()
         {
-            this.env = env;
         }
 
         public async Task<String> Detect(string imageUrlPath)
