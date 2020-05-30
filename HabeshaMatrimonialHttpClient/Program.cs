@@ -11,8 +11,7 @@ namespace HabeshaMatrimonialHttpClient
     {
         static async Task Main(string[] args)
         {
-            Environment env = new Environment();
-            AzureCognitiveService acs = new AzureCognitiveService(env);
+            AzureCognitiveService acs = new AzureCognitiveService();
             string zubeir1 = "https://imgur.com/9Mc3IiI.png";
             string zubeir2 = "https://imgur.com/6qdXap7.png";
 

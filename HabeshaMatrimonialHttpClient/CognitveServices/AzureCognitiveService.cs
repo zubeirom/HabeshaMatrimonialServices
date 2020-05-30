@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -13,18 +14,17 @@ namespace HabeshaMatrimonialHttpClient.CognitveServices
     class AzureCognitiveService : IFaceVerification
     {
 
-        public AzureCognitiveService()
-        {
-        }
-
         public async Task<String> Detect(string imageUrlPath)
         {
             try
             {
-                var key = this.env.OCP_APIM_KEY();
-                var client = new HttpClient
+                var key = ConfigurationManager.AppSettings["ocpApimKey"];
+                var uri = ConfigurationManager.AppSettings["baseUrl"];
+
+                var BaseAddress = new Uri(uri);
+                var client = new HttpClient()
                 {
-                    BaseAddress = new Uri(this.env.BASE_URL())
+                    BaseAddress = new Uri(uri),
                 };
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -42,7 +42,10 @@ namespace HabeshaMatrimonialHttpClient.CognitveServices
 
                 var responseBody = response.Content.ReadAsStringAsync().Result;
 
+                Console.WriteLine(responseBody);
+
                 var l = JsonConvert.DeserializeObject<List<DetectResponseBody>>(responseBody);
+                Console.WriteLine(l);
 
                 if(l.Count > 0)
                 {
@@ -54,6 +57,7 @@ namespace HabeshaMatrimonialHttpClient.CognitveServices
 
             } catch(Exception e)
             {
+                Console.WriteLine("DETECT ERROR");
                 Console.WriteLine(e.Message);
                 throw e;
             }
@@ -65,7 +69,12 @@ namespace HabeshaMatrimonialHttpClient.CognitveServices
             {
                 var client = new HttpClient();
 
-                var key = this.env.OCP_APIM_KEY();
+                var key = ConfigurationManager.AppSettings["ocpApimKey"];
+                var uri = ConfigurationManager.AppSettings["baseUrl"];
+
+
+                Console.WriteLine(key, uri);
+
                 var body = new VerifyRequestBody()
                 {
                     FaceId1 = faceId1,
@@ -76,7 +85,7 @@ namespace HabeshaMatrimonialHttpClient.CognitveServices
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
                 client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", key);
 
-                var url = this.env.BASE_URL() + "/face/v1.0/verify";
+                var url = uri + "/face/v1.0/verify";
 
                 var response = await client.PostAsync(url, data);
 
@@ -87,6 +96,7 @@ namespace HabeshaMatrimonialHttpClient.CognitveServices
             }
             catch (Exception e)
             {
+                Console.WriteLine("VERIFY ERROR");
                 Console.WriteLine(e.Message);
                 throw e;
             }
@@ -99,7 +109,7 @@ namespace HabeshaMatrimonialHttpClient.CognitveServices
                 string faceId1 = await Detect(image1);
                 string faceId2 = await Detect(image2);
 
-                if(faceId1 != "0" || faceId2 != "0")
+                if(faceId1 != "0" || faceId2 != "0" || faceId1 != null || faceId2 != null)
                 {
                     return await Verify(faceId1, faceId2);
                 } else
@@ -109,7 +119,8 @@ namespace HabeshaMatrimonialHttpClient.CognitveServices
 
             } catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine("VERIFICATIONJOB ERROR");
+                Console.WriteLine(e.Message);
                 throw e;
             }
         }
