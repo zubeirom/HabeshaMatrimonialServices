@@ -42,7 +42,6 @@ namespace HabeshaMatrimonialHttpClient.CognitveServices
 
                 var responseBody = response.Content.ReadAsStringAsync().Result;
 
-                Console.WriteLine(responseBody);
 
                 var l = JsonConvert.DeserializeObject<List<DetectResponseBody>>(responseBody);
                 Console.WriteLine(l);
@@ -73,7 +72,6 @@ namespace HabeshaMatrimonialHttpClient.CognitveServices
                 var uri = ConfigurationManager.AppSettings["baseUrl"];
 
 
-                Console.WriteLine(key, uri);
 
                 var body = new VerifyRequestBody()
                 {
